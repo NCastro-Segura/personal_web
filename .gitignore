@@ -39,3 +39,5 @@ build/
 # Personal notes
 notes.txt
 TODO.txt
+# Local Netlify folder
+.netlify

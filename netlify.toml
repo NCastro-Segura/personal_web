@@ -2,6 +2,7 @@
 
 [build]
   # No build command needed for static site
+  command = ""
   publish = "."
   functions = "netlify/functions"
 

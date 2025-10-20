@@ -59,12 +59,14 @@ exports.handler = async function(event, context) {
   // Enhanced search query: ORCID OR author name with quotes
   const searchQuery = `orcid:${ORCID_ID} OR author:"Castro-Segura"`;
   
-  // Build query URL with parameters
-  const queryUrl = `${ADS_URL}?q=${encodeURIComponent(searchQuery)}&fl=title,author,pub,year,bibcode,citation_count,abstract,doi&rows=${pageSize}&start=${start}&sort=year desc, citation_count desc`;
+  // Build query URL manually with proper encoding
+  // Note: fl parameter should be comma-separated, not array
+  const queryUrl = `${ADS_URL}?q=${encodeURIComponent(searchQuery)}&fl=title,author,pub,year,bibcode,citation_count,abstract,doi&rows=${pageSize}&start=${start}&sort=date+desc`;
 
   try {
     console.log('=== ADS API Request ===');
-    console.log('Query URL:', queryUrl);
+    console.log('Full URL:', queryUrl);
+    console.log('Query:', searchQuery);
     console.log('Page:', page, 'Start:', start, 'Rows:', pageSize);
     
     // Fetch from ADS API
@@ -79,47 +81,46 @@ exports.handler = async function(event, context) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ADS API error:', response.status, errorText);
-      throw new Error(`ADS API error: ${response.status}`);
+      throw new Error(`ADS API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
     
     console.log('=== ADS API Response ===');
-    console.log('Full response structure:', JSON.stringify(Object.keys(data), null, 2));
+    console.log('Response keys:', Object.keys(data));
     
-    // ADS returns data in a nested structure
-    // Check both possible response structures
-    let docs, numFound;
-    
-    if (data.response) {
-      // Standard ADS response structure
-      docs = data.response.docs || [];
-      numFound = data.response.numFound || 0;
-      console.log('Using data.response structure');
-    } else if (data.docs) {
-      // Alternative structure
-      docs = data.docs || [];
-      numFound = data.numFound || 0;
-      console.log('Using direct data structure');
-    } else {
+    // ADS returns data in a nested structure under 'response'
+    if (!data.response) {
       console.error('Unexpected response structure:', JSON.stringify(data, null, 2));
-      throw new Error('Unexpected ADS API response structure');
+      throw new Error('Unexpected ADS API response structure - missing response object');
     }
     
-    console.log(`Found ${numFound} total publications`);
-    console.log(`Returning ${docs.length} publications for page ${page}`);
+    const docs = data.response.docs || [];
+    const numFound = data.response.numFound || 0;
+    
+    console.log(`Total found: ${numFound}`);
+    console.log(`Returned in this request: ${docs.length}`);
+    console.log(`Start: ${data.response.start || 0}`);
     
     // Transform the response to a simpler format
-    const publications = docs.map(doc => ({
-      title: doc.title ? (Array.isArray(doc.title) ? doc.title[0] : doc.title) : 'Untitled',
-      authors: doc.author || [],
-      journal: doc.pub || 'Unknown',
-      year: doc.year || 'N/A',
-      bibcode: doc.bibcode || '',
-      citations: doc.citation_count || 0,
-      abstract: doc.abstract || '',
-      doi: doc.doi ? (Array.isArray(doc.doi) ? doc.doi[0] : doc.doi) : null
-    }));
+    const publications = docs.map(doc => {
+      // Handle fields that might be arrays or strings
+      const getFirst = (field) => {
+        if (!field) return null;
+        return Array.isArray(field) ? field[0] : field;
+      };
+      
+      return {
+        title: getFirst(doc.title) || 'Untitled',
+        authors: doc.author || [],
+        journal: doc.pub || 'Unknown',
+        year: doc.year || 'N/A',
+        bibcode: doc.bibcode || '',
+        citations: doc.citation_count || 0,
+        abstract: doc.abstract || '',
+        doi: getFirst(doc.doi)
+      };
+    });
 
     // Calculate pagination
     const totalResults = numFound;
@@ -129,7 +130,7 @@ exports.handler = async function(event, context) {
     const totalCitations = publications.reduce((sum, pub) => sum + pub.citations, 0);
 
     console.log('=== Response Summary ===');
-    console.log('Publications on this page:', publications.length);
+    console.log('Publications returned:', publications.length);
     console.log('Total results:', totalResults);
     console.log('Total pages:', totalPages);
     console.log('Current page:', page);
@@ -162,9 +163,11 @@ exports.handler = async function(event, context) {
         },
         debug: {
           query: searchQuery,
+          requestUrl: queryUrl.replace(ADS_API_TOKEN, 'REDACTED'),
           adsResponse: {
             numFound: numFound,
-            docsReturned: docs.length
+            docsReturned: docs.length,
+            start: data.response.start || 0
           }
         }
       })
@@ -183,7 +186,7 @@ exports.handler = async function(event, context) {
         success: false,
         error: error.message,
         message: 'Failed to fetch publications from ADS',
-        stack: error.stack
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       })
     };
   }

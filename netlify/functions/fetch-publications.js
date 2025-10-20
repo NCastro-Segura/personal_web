@@ -50,25 +50,29 @@ exports.handler = async function(event, context) {
   // Get pagination parameters from query string
   const queryParams = event.queryStringParameters || {};
   const page = parseInt(queryParams.page) || 1;
-  const pageSize = parseInt(queryParams.pageSize) || 12;
+  const pageSize = parseInt(queryParams.pageSize) || 10;
   const start = (page - 1) * pageSize;
   
   // ADS API endpoint
   const ADS_URL = 'https://api.adsabs.harvard.edu/v1/search/query';
   
   // Enhanced search query: ORCID OR author name with quotes
+  // The quotes ensure exact match for "Castro-Segura"
   const searchQuery = `orcid:${ORCID_ID} OR author:"Castro-Segura"`;
   
-  // Query parameters
+  // Query parameters - sorting by year (newest first), then by citations
   const params = new URLSearchParams({
     q: searchQuery,
     fl: 'title,author,pub,year,bibcode,citation_count,abstract,doi',
     rows: pageSize.toString(),
     start: start.toString(),
-    sort: 'year desc,citation_count desc'
+    sort: 'year desc, citation_count desc'
   });
 
   try {
+    console.log(`Fetching publications: page ${page}, start ${start}, rows ${pageSize}`);
+    console.log(`Query: ${searchQuery}`);
+    
     // Fetch from ADS API
     const response = await fetch(`${ADS_URL}?${params}`, {
       method: 'GET',
@@ -80,10 +84,14 @@ exports.handler = async function(event, context) {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`ADS API error: ${response.status}`, errorText);
       throw new Error(`ADS API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    
+    console.log(`Found ${data.response.numFound} total publications`);
+    console.log(`Returning ${data.response.docs.length} publications for this page`);
     
     // Transform the response to a simpler format
     const publications = data.response.docs.map(doc => ({
@@ -97,11 +105,11 @@ exports.handler = async function(event, context) {
       doi: doc.doi ? doc.doi[0] : null
     }));
 
-    // Get total number of results
+    // Get total number of results from ADS
     const totalResults = data.response.numFound || 0;
     const totalPages = Math.ceil(totalResults / pageSize);
 
-    // Calculate statistics (for all publications, not just current page)
+    // Calculate statistics for this page
     const totalCitations = publications.reduce((sum, pub) => sum + pub.citations, 0);
 
     // Return success response with CORS headers and pagination info
@@ -122,7 +130,9 @@ exports.handler = async function(event, context) {
           totalResults: totalResults,
           totalPages: totalPages,
           hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1
+          hasPreviousPage: page > 1,
+          start: start,
+          end: Math.min(start + pageSize, totalResults)
         },
         stats: {
           totalPublications: totalResults,

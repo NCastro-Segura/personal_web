@@ -724,7 +724,11 @@
                         }
                         
                         displayPublications(data.publications);
-                        displayPagination(data.pagination);
+                        
+                        // Check if pagination data exists before calling displayPagination
+                        if (data.pagination) {
+                            displayPagination(data.pagination);
+                        }
                     } else {
                         throw new Error(data.message || 'Failed to fetch publications');
                     }
@@ -741,25 +745,22 @@
                                 citations: 15,
                                 abstract: "We report the discovery of persistent UV outflows..."
                             },
-                            {
-                                title: "OPTICAM: A triple-camera optical system designed to explore the fastest timescales in Astronomy",
-                                authors: ["Castro Segura, N.", "Knigge, C.", "Acosta-Pulido, J. A.", "et al."],
-                                journal: "Monthly Notices of the Royal Astronomical Society",
-                                year: "2019",
-                                bibcode: "2019MNRAS.490.1035C",
-                                citations: 8,
-                                abstract: "We present OPTICAM, a high-time resolution..."
-                            }
+                            
                         ];
                         
                         displayPublications(mockPublications);
-                        displayPagination({
+                        
+                        // Create mock pagination data
+                        const mockPagination = {
                             currentPage: 1,
                             totalPages: 1,
                             totalResults: 2,
                             hasNextPage: false,
-                            hasPreviousPage: false
-                        });
+                            hasPreviousPage: false,
+                            pageSize: 10
+                        };
+                        
+                        displayPagination(mockPagination);
                     }, 2000);
                 }
                 
@@ -849,6 +850,14 @@
 
         function displayPagination(pagination) {
             const paginationContainer = document.getElementById('pagination-controls');
+            
+            // Safety check - if pagination is undefined or invalid, don't display
+            if (!pagination || !pagination.currentPage || !pagination.totalPages) {
+                console.warn('Invalid pagination data:', pagination);
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
             paginationContainer.innerHTML = '';
             
             const paginationInfo = document.createElement('p');

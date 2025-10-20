@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dr. Noel Castro Segura - Astrophysicist specializing in compact objects and time domain astronomy at the University of Warwick">
-    <meta name="keywords" content="black holes, neutron stars, white dwarfs, binary evolution, time domain astronomy, accretion">
+    <meta name="description" content="Dr. Noel Castro Segura - Astrophysicist specializing in compact objects and time domain astronomy at the University of Southampton">
+    <meta name="keywords" content="astrophysics, compact objects, neutron stars, time domain astronomy, accretion">
     <meta name="author" content="Dr. Noel Castro Segura">
     <title>Dr. Noel Castro Segura - Astrophysicist</title>
     <style>
@@ -360,6 +360,50 @@
             color: #64b5f6;
         }
         
+        #pagination-controls {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .pagination-info {
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+        
+        .pagination-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .page-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #64b5f6, #42a5f5);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .page-btn:hover:not(.active) {
+            transform: translateY(-2px);
+        }
+        
+        .page-btn.active {
+            background: #42a5f5;
+            cursor: default;
+        }
+        
+        .page-ellipsis {
+            padding: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
         @media (max-width: 768px) {
             .about-content {
                 grid-template-columns: 1fr;
@@ -422,7 +466,7 @@
             <div class="home-content">
                 <h1>Dr. Noel Castro Segura</h1>
                 <p>Astrophysicist & Research Fellow</p>
-                <p>University of Warwick</p>
+                <p>University of Southampton</p>
                 <p>Specialist in compact objects, time domain astronomy, and accretion physics</p>
             </div>
         </div>
@@ -436,11 +480,11 @@
                     </div>
                 </div>
                 <div class="about-text">
-                    <p>I am an astrophysicist specializing in compact objects and time domain astronomy at the University of Warwick. My research focuses on understanding the fundamental processes of accretion and outflows in neutron stars and black holes.</p>
+                    <p>I am an astrophysicist specializing in compact objects and time domain astronomy at the University of Southampton. My research focuses on understanding the fundamental processes of accretion and outflows in neutron stars and black holes.</p>
                     
                     <p>My work combines multi-wavelength observational astronomy with theoretical modeling to explore some of the most extreme environments in the universe. I am particularly interested in how matter behaves under the extreme gravitational fields of compact objects.</p>
                     
-                    <p>Current research interests include X-ray binary systems, accretion disc winds, neutron star binaries, and the development of high-speed optical instrumentation for time-resolved astronomy. I am part of the HiPERCAM collaboration and actively involved in the development of OPTICAM, a triple-camera optical system designed to explore the fastest timescales in astronomy.</p>
+                    <p>Current research interests include X-ray binary systems, accretion disc winds, neutron star binaries, and the development of high-speed optical instrumentation for time-resolved astronomy. I am actively involved in the development of OPTICAM, a triple-camera optical system designed to explore the fastest timescales in astronomy.</p>
                     
                     <p>I contribute to international collaborations and use data from space-based missions as well as ground-based telescopes to study the rapid variability and outflow phenomena in accreting compact objects.</p>
                 </div>
@@ -473,9 +517,11 @@
                 
                 <div id="publications-container" class="featured-articles" style="display: none;"></div>
                 
+                <div id="pagination-controls"></div>
+                
                 <div style="text-align: center; margin-top: 3rem;">
                     <p style="opacity: 0.8; margin-bottom: 1rem;">Publications automatically retrieved from ADS</p>
-                    <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443" class="btn" target="_blank" style="display: inline-block; text-decoration: none;">View Complete List on ADS</a>
+                    <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" class="btn" target="_blank" style="display: inline-block; text-decoration: none;">View Complete List on ADS</a>
                 </div>
             </div>
         </div>
@@ -484,7 +530,7 @@
             <h2 class="section-title">All Publications</h2>
             <div class="publications-content" style="text-align: center;">
                 <p style="opacity: 0.8; margin-bottom: 2rem;">For a complete and up-to-date list of all publications, please visit:</p>
-                <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443" class="btn" target="_blank" style="display: inline-block; text-decoration: none; margin-bottom: 2rem;">View All Publications on ADS</a>
+                <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" class="btn" target="_blank" style="display: inline-block; text-decoration: none; margin-bottom: 2rem;">View All Publications on ADS</a>
                 <br>
                 <a href="https://orcid.org/0000-0002-5870-0443" class="btn" target="_blank" style="display: inline-block; text-decoration: none;">View ORCID Profile</a>
             </div>
@@ -517,12 +563,13 @@
     </main>
     
     <script>
+        // Constellation background with fixed line alignment
         function createConstellation() {
             const constellation = document.getElementById('constellation');
             const numDots = 40;
             const dots = [];
             
-            // Get actual container dimensions
+            // Get actual container dimensions in pixels
             function getContainerDimensions() {
                 return {
                     width: constellation.offsetWidth,
@@ -530,6 +577,7 @@
                 };
             }
             
+            // Create dots
             for (let i = 0; i < numDots; i++) {
                 const dot = document.createElement('div');
                 dot.className = 'dot';
@@ -550,51 +598,60 @@
             }
             
             function animate() {
+                // Remove old lines
                 const existingLines = constellation.querySelectorAll('.line');
                 existingLines.forEach(line => line.remove());
                 
-                // Get actual pixel dimensions
+                // Get current dimensions
                 const dims = getContainerDimensions();
                 
+                // Update dot positions
                 dots.forEach(dot => {
                     dot.x += dot.vx;
                     dot.y += dot.vy;
                     
+                    // Bounce off edges
                     if (dot.x <= 0 || dot.x >= 100) dot.vx *= -1;
                     if (dot.y <= 0 || dot.y >= 100) dot.vy *= -1;
                     
+                    // Keep within bounds
                     dot.x = Math.max(0, Math.min(100, dot.x));
                     dot.y = Math.max(0, Math.min(100, dot.y));
                     
+                    // Update position
                     dot.element.style.left = dot.x + '%';
                     dot.element.style.top = dot.y + '%';
                 });
                 
+                // Draw lines between nearby dots
                 for (let i = 0; i < dots.length; i++) {
                     for (let j = i + 1; j < dots.length; j++) {
                         // Calculate distance in percentage units
                         const dx = dots[j].x - dots[i].x;
                         const dy = dots[j].y - dots[i].y;
                         
-                        // Convert to pixel distance for accurate measurement
+                        // Convert to actual pixel distance
                         const pixelDx = (dx / 100) * dims.width;
                         const pixelDy = (dy / 100) * dims.height;
                         const pixelDistance = Math.sqrt(pixelDx * pixelDx + pixelDy * pixelDy);
                         
-                        // Connection threshold in pixels (adjust as needed)
+                        // Connection threshold based on screen size (15% of smaller dimension)
                         const connectionThreshold = Math.min(dims.width, dims.height) * 0.15;
                         
                         if (pixelDistance < connectionThreshold) {
                             const line = document.createElement('div');
                             line.className = 'line';
+                            
+                            // Calculate angle for rotation
                             const angle = Math.atan2(dy, dx);
                             
-                            // Use pixels for line width instead of vw
+                            // Use PIXELS for line width (this fixes the alignment issue)
                             line.style.width = pixelDistance + 'px';
                             line.style.left = dots[i].x + '%';
                             line.style.top = dots[i].y + '%';
                             line.style.transform = `rotate(${angle}rad)`;
                             line.style.opacity = (1 - pixelDistance / connectionThreshold) * 0.6;
+                            
                             constellation.appendChild(line);
                         }
                     }
@@ -605,7 +662,7 @@
             
             animate();
             
-            // Recalculate on window resize
+            // Handle window resize
             let resizeTimeout;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimeout);
@@ -617,6 +674,7 @@
         
         createConstellation();
         
+        // Tab switching
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
         
@@ -632,27 +690,22 @@
             });
         });
         
-        // Fetch publications from ADS
-        // Updated fetchPublications function with pagination
-        // Replace the existing fetchPublications function in your index.html
-        
+        // Publications with pagination
         let currentPage = 1;
-        const pageSize = 10;
+        const pageSize = 12;
         let totalStats = { totalPublications: 0, totalCitations: 0, hIndex: 0 };
-        
+
         async function fetchPublications(page = 1) {
             try {
-                const isNetlify = window.location.hostname.includes('netlify.app');
+                const isNetlify = window.location.hostname.includes('netlify.app') || window.location.hostname.includes('netlify.com');
                 const apiUrl = isNetlify 
                     ? `/.netlify/functions/fetch-publications?page=${page}&pageSize=${pageSize}`
                     : null;
-        
+
                 if (apiUrl) {
-                    // Show loading state
                     document.getElementById('publications-loading').style.display = 'block';
                     document.getElementById('publications-container').style.display = 'none';
                     
-                    // Fetch from Netlify function
                     const response = await fetch(apiUrl);
                     
                     if (!response.ok) {
@@ -664,26 +717,18 @@
                     if (data.success) {
                         currentPage = page;
                         
-                        // Update statistics
                         document.getElementById('pub-count').textContent = data.stats.totalPublications;
                         
-                        // For h-index and total citations, we need all publications
-                        // So we'll fetch them separately or display page stats
                         if (page === 1) {
-                            // Fetch all publications for accurate h-index calculation
                             await fetchAllStats();
                         }
                         
-                        // Display publications
                         displayPublications(data.publications);
-                        
-                        // Display pagination
                         displayPagination(data.pagination);
                     } else {
                         throw new Error(data.message || 'Failed to fetch publications');
                     }
                 } else {
-                    // Fallback to mock data for GitHub Pages
                     console.log('Using mock data - deploy to Netlify for live ADS integration');
                     setTimeout(() => {
                         const mockPublications = [
@@ -694,34 +739,24 @@
                                 year: "2022",
                                 bibcode: "2022Natur.603...52C",
                                 citations: 15,
-                                abstract: "We report the discovery of persistent UV outflows in the neutron star X-ray binary       Swift J1858.6-0814..."
+                                abstract: "We report the discovery of persistent UV outflows..."
                             },
                             {
-                                title: "OPTICAM: A triple-camera optical system designed to explore the fastest timescales in       Astronomy",
+                                title: "OPTICAM: A triple-camera optical system designed to explore the fastest timescales in Astronomy",
                                 authors: ["Castro Segura, N.", "Knigge, C.", "Acosta-Pulido, J. A.", "et al."],
                                 journal: "Monthly Notices of the Royal Astronomical Society",
                                 year: "2019",
                                 bibcode: "2019MNRAS.490.1035C",
                                 citations: 8,
-                                abstract: "We present OPTICAM, a high-time resolution, 3-colour, simultaneous optical imaging       system..."
-                            },
-                            {
-                                title: "The eclipsing accreting white dwarf Z Chameleontis as seen with TESS",
-                                authors: ["Court, J. M. C.", "Scaringi, S.", "Rappaport, S.", "Castro Segura, N.", "et al."],
-                                journal: "Monthly Notices of the Royal Astronomical Society",
-                                year: "2020",
-                                bibcode: "2020MNRAS.494.4656C",
-                                citations: 12,
-                                abstract: "We present high-cadence photometry of the eclipsing cataclysmic variable Z       Chameleontis..."
+                                abstract: "We present OPTICAM, a high-time resolution..."
                             }
                         ];
                         
                         displayPublications(mockPublications);
-                        // Mock pagination
                         displayPagination({
                             currentPage: 1,
                             totalPages: 1,
-                            totalResults: 3,
+                            totalResults: 2,
                             hasNextPage: false,
                             hasPreviousPage: false
                         });
@@ -733,8 +768,7 @@
                 showError();
             }
         }
-        
-        // Fetch all publications to calculate accurate statistics
+
         async function fetchAllStats() {
             try {
                 const response = await fetch(`/.netlify/functions/fetch-publications?page=1&pageSize=1000`);
@@ -759,8 +793,7 @@
                 console.error('Error fetching statistics:', error);
             }
         }
-        
-        // Calculate h-index
+
         function calculateHIndex(citations) {
             if (!citations || citations.length === 0) return 0;
             const sorted = [...citations].sort((a, b) => b - a);
@@ -774,7 +807,7 @@
             }
             return hIndex;
         }
-        
+
         function displayPublications(publications) {
             const container = document.getElementById('publications-container');
             const loading = document.getElementById('publications-loading');
@@ -782,8 +815,7 @@
             loading.style.display = 'none';
             container.innerHTML = '';
             
-            // Update statistics if using mock data
-            if (!window.location.hostname.includes('netlify.app')) {
+            if (!window.location.hostname.includes('netlify.app') && !window.location.hostname.includes('netlify.com')) {
                 const totalCitations = publications.reduce((sum, pub) => sum + (pub.citations || 0), 0);
                 document.getElementById('pub-count').textContent = publications.length + '+';
                 document.getElementById('citation-count').textContent = totalCitations + '+';
@@ -793,22 +825,20 @@
                 const pubElement = document.createElement('article');
                 pubElement.className = 'article-card';
                 
-                // Format authors (limit to first 5 + et al.)
                 let authorString = pub.authors.slice(0, 5).join(', ');
                 if (pub.authors.length > 5) {
                     authorString += ', et al.';
                 }
                 
-                // Create DOI link if available
-                const doiLink = pub.doi ? `<br><a href="https://doi.org/${pub.doi}" class="article-link" target="_blank"        style="font-size: 0.85rem;">DOI: ${pub.doi}</a>` : '';
+                const doiLink = pub.doi ? `<br><a href="https://doi.org/${pub.doi}" class="article-link" target="_blank" style="font-size: 0.85rem;">DOI: ${pub.doi}</a>` : '';
                 
                 pubElement.innerHTML = `
                     <h3>${pub.title}</h3>
                     <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">${authorString}</p>
                     <p><strong>Published in:</strong> ${pub.journal}, ${pub.year}</p>
                     <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">Citations: ${pub.citations || 0}</p>
-                    ${pub.abstract ? `<p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-top: 0.5rem;">${pub.        abstract.substring(0, 200)}...</p>` : ''}
-                    <a href="https://ui.adsabs.harvard.edu/abs/${pub.bibcode}" class="article-link" target="_blank">View on ADS         →</a>
+                    ${pub.abstract ? `<p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-top: 0.5rem;">${pub.abstract.substring(0, 200)}...</p>` : ''}
+                    <a href="https://ui.adsabs.harvard.edu/abs/${pub.bibcode}" class="article-link" target="_blank">View on ADS →</a>
                     ${doiLink}
                 `;
                 container.appendChild(pubElement);
@@ -816,34 +846,24 @@
             
             container.style.display = 'grid';
         }
-        
+
         function displayPagination(pagination) {
-            // Remove existing pagination if any
-            const existingPagination = document.getElementById('pagination-controls');
-            if (existingPagination) {
-                existingPagination.remove();
-            }
-            
-            // Create pagination controls
-            const paginationDiv = document.createElement('div');
-            paginationDiv.id = 'pagination-controls';
-            paginationDiv.style.cssText = 'text-align: center; margin-top: 3rem; padding: 2rem 0;';
+            const paginationContainer = document.getElementById('pagination-controls');
+            paginationContainer.innerHTML = '';
             
             const paginationInfo = document.createElement('p');
-            paginationInfo.style.cssText = 'opacity: 0.8; margin-bottom: 1rem;';
-            paginationInfo.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages} (${pagination.totalResults}        total publications)`;
-            paginationDiv.appendChild(paginationInfo);
+            paginationInfo.className = 'pagination-info';
+            paginationInfo.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages} (${pagination.totalResults} total publications)`;
+            paginationContainer.appendChild(paginationInfo);
             
             const buttonContainer = document.createElement('div');
-            buttonContainer.style.cssText = 'display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;';
+            buttonContainer.className = 'pagination-buttons';
             
-            // Previous button
             if (pagination.hasPreviousPage) {
                 const prevBtn = createPageButton('← Previous', pagination.currentPage - 1);
                 buttonContainer.appendChild(prevBtn);
             }
             
-            // Page numbers (show current and nearby pages)
             const startPage = Math.max(1, pagination.currentPage - 2);
             const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
             
@@ -851,8 +871,8 @@
                 buttonContainer.appendChild(createPageButton('1', 1));
                 if (startPage > 2) {
                     const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
                     ellipsis.textContent = '...';
-                    ellipsis.style.cssText = 'padding: 0.75rem; color: rgba(255, 255, 255, 0.5);';
                     buttonContainer.appendChild(ellipsis);
                 }
             }
@@ -865,74 +885,50 @@
             if (endPage < pagination.totalPages) {
                 if (endPage < pagination.totalPages - 1) {
                     const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
                     ellipsis.textContent = '...';
-                    ellipsis.style.cssText = 'padding: 0.75rem; color: rgba(255, 255, 255, 0.5);';
                     buttonContainer.appendChild(ellipsis);
                 }
                 buttonContainer.appendChild(createPageButton(pagination.totalPages.toString(), pagination.totalPages));
             }
             
-            // Next button
             if (pagination.hasNextPage) {
                 const nextBtn = createPageButton('Next →', pagination.currentPage + 1);
                 buttonContainer.appendChild(nextBtn);
             }
             
-            paginationDiv.appendChild(buttonContainer);
-            
-            // Insert after publications container
-            const researchContent = document.querySelector('.research-content');
-            const existingLink = researchContent.querySelector('div[style*="text-align: center"]');
-            if (existingLink) {
-                researchContent.insertBefore(paginationDiv, existingLink);
-            } else {
-                researchContent.appendChild(paginationDiv);
-            }
+            paginationContainer.appendChild(buttonContainer);
         }
-        
+
         function createPageButton(label, pageNumber, isActive = false) {
             const button = document.createElement('button');
             button.textContent = label;
-            button.className = 'btn';
-            button.style.cssText = `
-                padding: 0.75rem 1.5rem;
-                ${isActive ? 'background: #42a5f5; cursor: default;' : 'background: linear-gradient(135deg, #64b5f6, #42a5f5);'}
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: ${isActive ? 'default' : 'pointer'};
-                transition: transform 0.3s;
-                font-size: 0.9rem;
-            `;
+            button.className = 'page-btn' + (isActive ? ' active' : '');
             
             if (!isActive) {
                 button.onclick = () => {
                     fetchPublications(pageNumber);
-                    // Scroll to top of research section
-                    document.querySelector('.research-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.getElementById('research').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 };
-                button.onmouseover = () => button.style.transform = 'translateY(-2px)';
-                button.onmouseout = () => button.style.transform = 'translateY(0)';
             }
             
             return button;
         }
-        
+
         function showError() {
             const loading = document.getElementById('publications-loading');
             loading.innerHTML = `
                 <div style="color: #ff6b6b;">Unable to load publications automatically</div>
                 <div style="opacity: 0.7; margin-top: 0.5rem;">Please visit ADS directly to view publications</div>
                 <div style="margin-top: 1rem;">
-                    <a href="https://ui.adsabs.harvard.edu/search/      q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" 
+                    <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" 
                        class="btn" target="_blank" style="display: inline-block; text-decoration: none;">
                         View on ADS
                     </a>
                 </div>
             `;
         }
-        
-        // Load publications when Research tab is clicked
+
         let publicationsLoaded = false;
         document.querySelector('[data-tab="research"]').addEventListener('click', function() {
             if (!publicationsLoaded) {
@@ -940,7 +936,7 @@
                 publicationsLoaded = true;
             }
         });
-        // Contact form handling
+        
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
             alert('Form submitted! Note: To enable email functionality, you need to set up a backend service or use a service like Formspree, EmailJS, or Netlify Forms.');

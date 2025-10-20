@@ -50,7 +50,7 @@ exports.handler = async function(event, context) {
   // Get pagination parameters from query string
   const queryParams = event.queryStringParameters || {};
   const page = parseInt(queryParams.page) || 1;
-  const pageSize = parseInt(queryParams.pageSize) || 10;
+  const pageSize = parseInt(queryParams.pageSize) || 12;
   const start = (page - 1) * pageSize;
   
   // ADS API endpoint

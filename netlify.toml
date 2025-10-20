@@ -1,0 +1,23 @@
+# Netlify configuration file
+
+[build]
+  # No build command needed for static site
+  publish = "."
+  functions = "netlify/functions"
+
+# Redirect rules (optional)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Headers for CORS
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Environment variables (set these in Netlify dashboard)
+# ADS_API_TOKEN = "your-ads-api-token-here"

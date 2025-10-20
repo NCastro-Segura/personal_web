@@ -633,17 +633,25 @@
         });
         
         // Fetch publications from ADS
-        async function fetchPublications() {
+        // Updated fetchPublications function with pagination
+        // Replace the existing fetchPublications function in your index.html
+        
+        let currentPage = 1;
+        const pageSize = 10;
+        let totalStats = { totalPublications: 0, totalCitations: 0, hIndex: 0 };
+        
+        async function fetchPublications(page = 1) {
             try {
-                // Determine the API endpoint based on environment
-                // When deployed on Netlify, this will use the serverless function
-                // When on GitHub Pages, it falls back to mock data
                 const isNetlify = window.location.hostname.includes('netlify.app');
                 const apiUrl = isNetlify 
-                    ? '/.netlify/functions/fetch-publications'
+                    ? `/.netlify/functions/fetch-publications?page=${page}&pageSize=${pageSize}`
                     : null;
         
                 if (apiUrl) {
+                    // Show loading state
+                    document.getElementById('publications-loading').style.display = 'block';
+                    document.getElementById('publications-container').style.display = 'none';
+                    
                     // Fetch from Netlify function
                     const response = await fetch(apiUrl);
                     
@@ -654,13 +662,23 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Update statistics with real data
+                        currentPage = page;
+                        
+                        // Update statistics
                         document.getElementById('pub-count').textContent = data.stats.totalPublications;
-                        document.getElementById('citation-count').textContent = data.stats.totalCitations;
-                        document.getElementById('h-index').textContent = data.stats.hIndex;
+                        
+                        // For h-index and total citations, we need all publications
+                        // So we'll fetch them separately or display page stats
+                        if (page === 1) {
+                            // Fetch all publications for accurate h-index calculation
+                            await fetchAllStats();
+                        }
                         
                         // Display publications
                         displayPublications(data.publications);
+                        
+                        // Display pagination
+                        displayPagination(data.pagination);
                     } else {
                         throw new Error(data.message || 'Failed to fetch publications');
                     }
@@ -699,6 +717,14 @@
                         ];
                         
                         displayPublications(mockPublications);
+                        // Mock pagination
+                        displayPagination({
+                            currentPage: 1,
+                            totalPages: 1,
+                            totalResults: 3,
+                            hasNextPage: false,
+                            hasPreviousPage: false
+                        });
                     }, 2000);
                 }
                 
@@ -706,6 +732,47 @@
                 console.error('Error fetching publications:', error);
                 showError();
             }
+        }
+        
+        // Fetch all publications to calculate accurate statistics
+        async function fetchAllStats() {
+            try {
+                const response = await fetch(`/.netlify/functions/fetch-publications?page=1&pageSize=1000`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const allCitations = data.publications.map(p => p.citations || 0);
+                        const totalCitations = allCitations.reduce((sum, c) => sum + c, 0);
+                        const hIndex = calculateHIndex(allCitations);
+                        
+                        totalStats = {
+                            totalPublications: data.stats.totalPublications,
+                            totalCitations: totalCitations,
+                            hIndex: hIndex
+                        };
+                        
+                        document.getElementById('citation-count').textContent = totalCitations;
+                        document.getElementById('h-index').textContent = hIndex;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching statistics:', error);
+            }
+        }
+        
+        // Calculate h-index
+        function calculateHIndex(citations) {
+            if (!citations || citations.length === 0) return 0;
+            const sorted = [...citations].sort((a, b) => b - a);
+            let hIndex = 0;
+            for (let i = 0; i < sorted.length; i++) {
+                if (sorted[i] >= i + 1) {
+                    hIndex = i + 1;
+                } else {
+                    break;
+                }
+            }
+            return hIndex;
         }
         
         function displayPublications(publications) {
@@ -732,6 +799,9 @@
                     authorString += ', et al.';
                 }
                 
+                // Create DOI link if available
+                const doiLink = pub.doi ? `<br><a href="https://doi.org/${pub.doi}" class="article-link" target="_blank"        style="font-size: 0.85rem;">DOI: ${pub.doi}</a>` : '';
+                
                 pubElement.innerHTML = `
                     <h3>${pub.title}</h3>
                     <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">${authorString}</p>
@@ -739,11 +809,113 @@
                     <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">Citations: ${pub.citations || 0}</p>
                     ${pub.abstract ? `<p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-top: 0.5rem;">${pub.        abstract.substring(0, 200)}...</p>` : ''}
                     <a href="https://ui.adsabs.harvard.edu/abs/${pub.bibcode}" class="article-link" target="_blank">View on ADS         →</a>
+                    ${doiLink}
                 `;
                 container.appendChild(pubElement);
             });
             
             container.style.display = 'grid';
+        }
+        
+        function displayPagination(pagination) {
+            // Remove existing pagination if any
+            const existingPagination = document.getElementById('pagination-controls');
+            if (existingPagination) {
+                existingPagination.remove();
+            }
+            
+            // Create pagination controls
+            const paginationDiv = document.createElement('div');
+            paginationDiv.id = 'pagination-controls';
+            paginationDiv.style.cssText = 'text-align: center; margin-top: 3rem; padding: 2rem 0;';
+            
+            const paginationInfo = document.createElement('p');
+            paginationInfo.style.cssText = 'opacity: 0.8; margin-bottom: 1rem;';
+            paginationInfo.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages} (${pagination.totalResults}        total publications)`;
+            paginationDiv.appendChild(paginationInfo);
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = 'display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;';
+            
+            // Previous button
+            if (pagination.hasPreviousPage) {
+                const prevBtn = createPageButton('← Previous', pagination.currentPage - 1);
+                buttonContainer.appendChild(prevBtn);
+            }
+            
+            // Page numbers (show current and nearby pages)
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+            
+            if (startPage > 1) {
+                buttonContainer.appendChild(createPageButton('1', 1));
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.cssText = 'padding: 0.75rem; color: rgba(255, 255, 255, 0.5);';
+                    buttonContainer.appendChild(ellipsis);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = createPageButton(i.toString(), i, i === pagination.currentPage);
+                buttonContainer.appendChild(pageBtn);
+            }
+            
+            if (endPage < pagination.totalPages) {
+                if (endPage < pagination.totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.cssText = 'padding: 0.75rem; color: rgba(255, 255, 255, 0.5);';
+                    buttonContainer.appendChild(ellipsis);
+                }
+                buttonContainer.appendChild(createPageButton(pagination.totalPages.toString(), pagination.totalPages));
+            }
+            
+            // Next button
+            if (pagination.hasNextPage) {
+                const nextBtn = createPageButton('Next →', pagination.currentPage + 1);
+                buttonContainer.appendChild(nextBtn);
+            }
+            
+            paginationDiv.appendChild(buttonContainer);
+            
+            // Insert after publications container
+            const researchContent = document.querySelector('.research-content');
+            const existingLink = researchContent.querySelector('div[style*="text-align: center"]');
+            if (existingLink) {
+                researchContent.insertBefore(paginationDiv, existingLink);
+            } else {
+                researchContent.appendChild(paginationDiv);
+            }
+        }
+        
+        function createPageButton(label, pageNumber, isActive = false) {
+            const button = document.createElement('button');
+            button.textContent = label;
+            button.className = 'btn';
+            button.style.cssText = `
+                padding: 0.75rem 1.5rem;
+                ${isActive ? 'background: #42a5f5; cursor: default;' : 'background: linear-gradient(135deg, #64b5f6, #42a5f5);'}
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: ${isActive ? 'default' : 'pointer'};
+                transition: transform 0.3s;
+                font-size: 0.9rem;
+            `;
+            
+            if (!isActive) {
+                button.onclick = () => {
+                    fetchPublications(pageNumber);
+                    // Scroll to top of research section
+                    document.querySelector('.research-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                };
+                button.onmouseover = () => button.style.transform = 'translateY(-2px)';
+                button.onmouseout = () => button.style.transform = 'translateY(0)';
+            }
+            
+            return button;
         }
         
         function showError() {
@@ -752,7 +924,7 @@
                 <div style="color: #ff6b6b;">Unable to load publications automatically</div>
                 <div style="opacity: 0.7; margin-top: 0.5rem;">Please visit ADS directly to view publications</div>
                 <div style="margin-top: 1rem;">
-                    <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443" 
+                    <a href="https://ui.adsabs.harvard.edu/search/      q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" 
                        class="btn" target="_blank" style="display: inline-block; text-decoration: none;">
                         View on ADS
                     </a>
@@ -764,11 +936,10 @@
         let publicationsLoaded = false;
         document.querySelector('[data-tab="research"]').addEventListener('click', function() {
             if (!publicationsLoaded) {
-                fetchPublications();
+                fetchPublications(1);
                 publicationsLoaded = true;
             }
         });
-        
         // Contact form handling
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();

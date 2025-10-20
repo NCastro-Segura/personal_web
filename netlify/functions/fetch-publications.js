@@ -2,10 +2,27 @@
 // This handles CORS and API authentication
 
 exports.handler = async function(event, context) {
+  // Handle CORS preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
   // Only allow GET requests
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
@@ -13,6 +30,22 @@ exports.handler = async function(event, context) {
   // ADS API configuration
   const ADS_API_TOKEN = process.env.ADS_API_TOKEN; // Set this in Netlify environment variables
   const ORCID_ID = '0000-0002-5870-0443';
+  
+  // Check if token exists
+  if (!ADS_API_TOKEN) {
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: false,
+        error: 'ADS_API_TOKEN not configured',
+        message: 'Please add ADS_API_TOKEN to Netlify environment variables'
+      })
+    };
+  }
   
   // ADS API endpoint
   const ADS_URL = 'https://api.adsabs.harvard.edu/v1/search/query';
@@ -112,17 +145,4 @@ function calculateHIndex(citations) {
   }
   
   return hIndex;
-}
-
-// Handle CORS preflight requests
-if (event.httpMethod === 'OPTIONS') {
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS'
-    },
-    body: ''
-  };
 }

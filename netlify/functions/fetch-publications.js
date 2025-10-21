@@ -1,13 +1,8 @@
-// Debug version of fetch-publications function
-// Use this to see EXACTLY what's happening
+// Netlify Serverless Function to fetch ADS publications
+// Enhanced with flexible name search patterns
 
 exports.handler = async function(event, context) {
-  console.log('========================================');
-  console.log('FUNCTION INVOKED');
-  console.log('========================================');
-  console.log('Event:', JSON.stringify(event, null, 2));
-  
-  // Handle CORS preflight
+  // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -20,7 +15,7 @@ exports.handler = async function(event, context) {
     };
   }
 
-  // Only allow GET
+  // Only allow GET requests
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
@@ -32,12 +27,11 @@ exports.handler = async function(event, context) {
     };
   }
 
+  // ADS API configuration
   const ADS_API_TOKEN = process.env.ADS_API_TOKEN;
   const ORCID_ID = '0000-0002-5870-0443';
   
-  console.log('Token exists:', !!ADS_API_TOKEN);
-  console.log('Token length:', ADS_API_TOKEN ? ADS_API_TOKEN.length : 0);
-  
+  // Check if token exists
   if (!ADS_API_TOKEN) {
     return {
       statusCode: 500,
@@ -47,41 +41,52 @@ exports.handler = async function(event, context) {
       },
       body: JSON.stringify({
         success: false,
-        error: 'ADS_API_TOKEN not configured'
+        error: 'ADS_API_TOKEN not configured',
+        message: 'Please add ADS_API_TOKEN to Netlify environment variables'
       })
     };
   }
   
-  // Get query parameters
+  // Get pagination parameters from query string
   const queryParams = event.queryStringParameters || {};
-  console.log('Query params received:', queryParams);
-  
   const page = parseInt(queryParams.page) || 1;
   const pageSize = parseInt(queryParams.pageSize) || 10;
   const start = (page - 1) * pageSize;
   
-  console.log('Parsed pagination:');
-  console.log('  page:', page);
-  console.log('  pageSize:', pageSize);
-  console.log('  start:', start);
+  // ADS API endpoint
+  const ADS_URL = 'https://api.adsabs.harvard.edu/v1/search/query';
   
-  // Build query
-  const searchQuery = `orcid:${ORCID_ID} OR author:"Castro-Segura"`;
-  const baseUrl = 'https://api.adsabs.harvard.edu/v1/search/query';
+  // Enhanced search query with multiple name variations
+  // This catches all possible ways your name might be listed:
+  // 1. "Castro-Segura" (hyphenated, most common)
+  // 2. "Castro Segura" (space instead of hyphen)
+  // 3. "Castro, N." (when Castro is treated as surname)
+  // 4. "Segura, N. C." (when Segura is treated as surname)
+  // 5. ORCID (most reliable)
+  const nameVariations = [
+    'author:"Castro-Segura"',
+    'author:"Castro Segura"',
+    'author:"Castro Segura, Noel"',
+    'author:"Castro Segura, N."',
+    'author:"Segura, N. Castro"',
+    'author:"Segura, Noel Castro"',
+    `orcid:${ORCID_ID}`                 // ORCID (most reliable)
+  ];
   
-  // Build URL exactly like the working local test
-  const queryUrl = `${baseUrl}?q=${encodeURIComponent(searchQuery)}&fl=title,author,pub,year,bibcode,citation_count,abstract,doi&rows=${pageSize}&start=${start}&sort=date+desc`;
+  // Join all variations with OR, then exclude "Segura, C" (different person)
+  // The parentheses ensure the NOT applies after the OR conditions
+  const searchQuery = `(${nameVariations.join(' OR ')}) NOT author:"Segura, C"`;
   
-  console.log('========================================');
-  console.log('ADS API REQUEST');
-  console.log('========================================');
-  console.log('Search query:', searchQuery);
-  console.log('Full URL:', queryUrl);
-  console.log('');
+  
+  // Build URL
+  const queryUrl = `${ADS_URL}?q=${encodeURIComponent(searchQuery)}&fl=title,author,pub,year,bibcode,citation_count,abstract,doi&rows=${pageSize}&start=${start}&sort=date+desc`;
 
   try {
-    const fetchStart = Date.now();
+    console.log('=== ADS API Request ===');
+    console.log('Search query variations:', nameVariations.length);
+    console.log('Page:', page, 'Start:', start, 'Rows:', pageSize);
     
+    // Fetch from ADS API
     const response = await fetch(queryUrl, {
       method: 'GET',
       headers: {
@@ -89,149 +94,51 @@ exports.handler = async function(event, context) {
         'Content-Type': 'application/json'
       }
     });
-    
-    const fetchTime = Date.now() - fetchStart;
-    console.log(`Fetch completed in ${fetchTime}ms`);
-    console.log('Response status:', response.status);
-    console.log('Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('ADS API ERROR:', response.status);
-      console.error('Error body:', errorText);
-      
-      return {
-        statusCode: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          success: false,
-          error: `ADS API error: ${response.status}`,
-          details: errorText,
-          debug: {
-            queryUrl: queryUrl.replace(ADS_API_TOKEN, 'REDACTED')
-          }
-        })
-      };
+      console.error('ADS API error:', response.status, errorText);
+      throw new Error(`ADS API error: ${response.status}`);
     }
 
     const data = await response.json();
     
-    console.log('========================================');
-    console.log('ADS API RESPONSE');
-    console.log('========================================');
-    console.log('Response keys:', Object.keys(data));
-    
     if (!data.response) {
-      console.error('CRITICAL: Missing response object!');
-      console.error('Full data:', JSON.stringify(data, null, 2));
-      
-      return {
-        statusCode: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          success: false,
-          error: 'Unexpected ADS response structure',
-          receivedKeys: Object.keys(data),
-          fullResponse: data
-        })
-      };
+      console.error('Unexpected response structure');
+      throw new Error('Unexpected ADS API response structure');
     }
     
     const docs = data.response.docs || [];
     const numFound = data.response.numFound || 0;
-    const responseStart = data.response.start || 0;
     
-    console.log('CRITICAL VALUES:');
-    console.log('  numFound:', numFound, '<-- TOTAL publications in ADS');
-    console.log('  docs.length:', docs.length, '<-- Returned in this response');
-    console.log('  start:', responseStart, '<-- ADS start position');
-    console.log('  requested start:', start);
-    console.log('  requested rows:', pageSize);
+    console.log(`Total found: ${numFound}`);
+    console.log(`Returned: ${docs.length}`);
     
-    // Transform publications
-    const publications = docs.map((doc, index) => {
-      const pub = {
-        title: (Array.isArray(doc.title) ? doc.title[0] : doc.title) || 'Untitled',
+    // Transform the response
+    const publications = docs.map(doc => {
+      const getFirst = (field) => {
+        if (!field) return null;
+        return Array.isArray(field) ? field[0] : field;
+      };
+      
+      return {
+        title: getFirst(doc.title) || 'Untitled',
         authors: doc.author || [],
         journal: doc.pub || 'Unknown',
         year: doc.year || 'N/A',
         bibcode: doc.bibcode || '',
         citations: doc.citation_count || 0,
         abstract: doc.abstract || '',
-        doi: (Array.isArray(doc.doi) ? doc.doi[0] : doc.doi) || null
+        doi: getFirst(doc.doi)
       };
-      
-      if (index < 3) {
-        console.log(`  Publication ${index + 1}:`, pub.year, '-', pub.title.substring(0, 50));
-      }
-      
-      return pub;
     });
-    
-    console.log('Transformed', publications.length, 'publications');
 
     // Calculate pagination
     const totalResults = numFound;
     const totalPages = Math.ceil(totalResults / pageSize);
     const totalCitations = publications.reduce((sum, pub) => sum + pub.citations, 0);
 
-    console.log('========================================');
-    console.log('PAGINATION CALCULATION');
-    console.log('========================================');
-    console.log('  totalResults (numFound):', totalResults);
-    console.log('  pageSize:', pageSize);
-    console.log('  totalPages:', totalPages);
-    console.log('  currentPage:', page);
-    console.log('  hasNextPage:', page < totalPages);
-    console.log('  hasPreviousPage:', page > 1);
-
-    const responseBody = {
-      success: true,
-      publications: publications,
-      pagination: {
-        currentPage: page,
-        pageSize: pageSize,
-        totalResults: totalResults,
-        totalPages: totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
-        start: start,
-        end: Math.min(start + pageSize, totalResults)
-      },
-      stats: {
-        totalPublications: totalResults,
-        citationsThisPage: totalCitations
-      },
-      debug: {
-        functionVersion: 'debug-v1',
-        query: searchQuery,
-        requestedPage: page,
-        requestedPageSize: pageSize,
-        requestedStart: start,
-        adsNumFound: numFound,
-        adsDocsReturned: docs.length,
-        adsStart: responseStart,
-        calculatedTotalPages: totalPages,
-        fetchTimeMs: fetchTime
-      }
-    };
-    
-    console.log('========================================');
-    console.log('FINAL RESPONSE');
-    console.log('========================================');
-    console.log('Sending response with:');
-    console.log('  publications:', publications.length);
-    console.log('  totalResults:', totalResults);
-    console.log('  totalPages:', totalPages);
-    console.log('  currentPage:', page);
-    console.log('========================================');
-
+    // Return success response
     return {
       statusCode: 200,
       headers: {
@@ -240,15 +147,32 @@ exports.handler = async function(event, context) {
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(responseBody)
+      body: JSON.stringify({
+        success: true,
+        publications: publications,
+        pagination: {
+          currentPage: page,
+          pageSize: pageSize,
+          totalResults: totalResults,
+          totalPages: totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+          start: start,
+          end: Math.min(start + pageSize, totalResults)
+        },
+        stats: {
+          totalPublications: totalResults,
+          citationsThisPage: totalCitations
+        },
+        searchInfo: {
+          variations: nameVariations.length,
+          query: searchQuery.substring(0, 200) + '...' // Truncate for display
+        }
+      })
     };
 
   } catch (error) {
-    console.error('========================================');
-    console.error('EXCEPTION CAUGHT');
-    console.error('========================================');
-    console.error('Error:', error);
-    console.error('Stack:', error.stack);
+    console.error('Error in function:', error);
     
     return {
       statusCode: 500,
@@ -259,9 +183,155 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({
         success: false,
         error: error.message,
-        stack: error.stack,
-        type: error.constructor.name
+        message: 'Failed to fetch publications from ADS'
+      })
+    };
+  }
+};// Netlify Serverless Function to fetch ADS publications
+// This handles CORS and API authentication
+
+exports.handler = async function(event, context) {
+  // Handle CORS preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
+  // Only allow GET requests
+  if (event.httpMethod !== 'GET') {
+    return {
+      statusCode: 405,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
+  }
+
+  // ADS API configuration
+  const ADS_API_TOKEN = process.env.ADS_API_TOKEN; // Set this in Netlify environment variables
+  const ORCID_ID = '0000-0002-5870-0443';
+  
+  // Check if token exists
+  if (!ADS_API_TOKEN) {
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: false,
+        error: 'ADS_API_TOKEN not configured',
+        message: 'Please add ADS_API_TOKEN to Netlify environment variables'
+      })
+    };
+  }
+  
+  // ADS API endpoint
+  const ADS_URL = 'https://api.adsabs.harvard.edu/v1/search/query';
+  
+  // Query parameters
+  const params = new URLSearchParams({
+    q: `orcid:${ORCID_ID}`,
+    fl: 'title,author,pub,year,bibcode,citation_count,abstract',
+    rows: '10',
+    sort: 'year desc'
+  });
+
+  try {
+    // Fetch from ADS API
+    const response = await fetch(`${ADS_URL}?${params}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${ADS_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`ADS API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Transform the response to a simpler format
+    const publications = data.response.docs.map(doc => ({
+      title: doc.title ? doc.title[0] : 'Untitled',
+      authors: doc.author || [],
+      journal: doc.pub || 'Unknown',
+      year: doc.year || 'N/A',
+      bibcode: doc.bibcode || '',
+      citations: doc.citation_count || 0,
+      abstract: doc.abstract || ''
+    }));
+
+    // Calculate statistics
+    const totalCitations = publications.reduce((sum, pub) => sum + pub.citations, 0);
+    const hIndex = calculateHIndex(publications.map(p => p.citations));
+
+    // Return success response with CORS headers
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: true,
+        publications: publications,
+        stats: {
+          totalPublications: publications.length,
+          totalCitations: totalCitations,
+          hIndex: hIndex
+        }
+      })
+    };
+
+  } catch (error) {
+    console.error('Error fetching publications:', error);
+    
+    // Return error response
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: false,
+        error: error.message,
+        message: 'Failed to fetch publications from ADS'
       })
     };
   }
 };
+
+// Calculate h-index from citation counts
+function calculateHIndex(citations) {
+  if (!citations || citations.length === 0) return 0;
+  
+  // Sort citations in descending order
+  const sorted = citations.sort((a, b) => b - a);
+  
+  let hIndex = 0;
+  for (let i = 0; i < sorted.length; i++) {
+    if (sorted[i] >= i + 1) {
+      hIndex = i + 1;
+    } else {
+      break;
+    }
+  }
+  
+  return hIndex;
+}

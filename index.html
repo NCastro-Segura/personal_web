@@ -542,9 +542,22 @@
         </div><!-- /#about -->
         
         <div id="research" class="tab-content">
+            <div class="content-card glass-css" style="padding: 2.5rem; text-align: center;">
+              <h2 style="color: #64b5f6; margin-bottom: 1rem;">Research</h2>
+              <p style="opacity: 0.7;">Research sections coming soon — this page will showcase research narratives with illustrations.</p>
+            </div>
+        </div><!-- /#research -->
+
+        <div id="publications" class="tab-content">
             <div class="content-card glass-css" style="padding: 2rem;">
-            <h2 class="section-title">Research & Publications</h2>
-            
+            <h2 class="section-title">Publications</h2>
+
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <p style="opacity: 0.8; margin-bottom: 1rem;">View the full list of publications on external profiles:</p>
+                <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" class="btn" target="_blank" style="display: inline-block; text-decoration: none; margin-right: 1rem; margin-bottom: 0.5rem;">View All Publications on ADS</a>
+                <a href="https://orcid.org/0000-0002-5870-0443" class="btn" target="_blank" style="display: inline-block; text-decoration: none;">View ORCID Profile</a>
+            </div>
+
             <div class="stats" style="margin-bottom: 3rem;">
                 <div class="stat-item">
                     <div class="stat-number" id="pub-count">0</div>
@@ -559,41 +572,30 @@
                     <div>h-index</div>
                 </div>
             </div>
-            
+
             <div class="research-content">
                 <div id="publications-loading" class="loading-state">
                     <div style="color: #64b5f6; font-size: 1.2rem;">Loading publications from ADS...</div>
                     <div style="opacity: 0.7; margin-top: 0.5rem;">Fetching data using ORCID: 0000-0002-5870-0443</div>
                 </div>
-                
+
                 <div id="publications-container" class="featured-articles" style="display: none;"></div>
-                
+
                 <div id="pagination-controls"></div>
-                
+
                 <div style="text-align: center; margin-top: 3rem;">
                     <p style="opacity: 0.8; margin-bottom: 1rem;">Publications automatically retrieved from ADS</p>
                     <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" class="btn" target="_blank" style="display: inline-block; text-decoration: none;">View Complete List on ADS</a>
                 </div>
             </div><!-- /.research-content -->
             </div><!-- /.content-card -->
-        </div><!-- /#research -->
-
-        <div id="publications" class="tab-content">
-            <div class="content-card glass-css" style="padding: 2rem;">
-            <h2 class="section-title">All Publications</h2>
-            <div class="publications-content" style="text-align: center;">
-                <p style="opacity: 0.8; margin-bottom: 2rem;">For a complete and up-to-date list of all publications, please visit:</p>
-                <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443%20OR%20author:%22Castro-Segura%22" class="btn" target="_blank" style="display: inline-block; text-decoration: none; margin-bottom: 2rem;">View All Publications on ADS</a>
-                <br>
-                <a href="https://orcid.org/0000-0002-5870-0443" class="btn" target="_blank" style="display: inline-block; text-decoration: none;">View ORCID Profile</a>
-            </div>
-            </div><!-- /.content-card -->
         </div><!-- /#publications -->
         
         <div id="contact" class="tab-content">
             <h2 class="section-title">Contact Me</h2>
             <div class="contact-content">
-                <form class="contact-form content-card glass-css" id="contactForm">
+                <form class="contact-form content-card glass-css" id="contactForm" data-netlify="true" name="contact">
+                    <input type="hidden" name="form-name" value="contact">
                     <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" id="name" name="name" required>
@@ -610,8 +612,15 @@
                         <label for="message">Message</label>
                         <textarea id="message" name="message" rows="6" required placeholder="Your message here..."></textarea>
                     </div>
+                    <div id="form-error" style="display:none; color:#ff6b6b; margin-bottom:1rem; font-size:0.9rem;">
+                      Something went wrong. Please try again or email me directly.
+                    </div>
                     <button type="submit" class="btn">Send Message</button>
                 </form>
+                <div id="form-success" style="display:none; text-align:center; padding:2rem;">
+                  <h3 style="color:#64b5f6; margin-bottom:0.75rem;">Message sent!</h3>
+                  <p style="opacity:0.8;">Thanks for reaching out — I'll get back to you soon.</p>
+                </div>
             </div>
         </div>
     </main>
@@ -1142,17 +1151,40 @@
         }
 
         let publicationsLoaded = false;
-        document.querySelector('[data-tab="research"]').addEventListener('click', function() {
+        document.querySelector('[data-tab="publications"]').addEventListener('click', function() {
             if (!publicationsLoaded) {
                 fetchPublications(1);
                 publicationsLoaded = true;
             }
         });
         
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+          contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Form submitted! Note: To enable email functionality, you need to set up a backend service or use a service like Formspree, EmailJS, or Netlify Forms.');
-        });
+            const formError = document.getElementById('form-error');
+            const formSuccess = document.getElementById('form-success');
+            formError.style.display = 'none';
+
+            const data = new FormData(contactForm);
+
+            try {
+              const res = await fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(data).toString()
+              });
+              if (res.ok) {
+                contactForm.style.display = 'none';
+                formSuccess.style.display = 'block';
+              } else {
+                formError.style.display = 'block';
+              }
+            } catch (err) {
+              formError.style.display = 'block';
+            }
+          });
+        }
     </script>
 </body>
 </html>

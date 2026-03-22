@@ -236,6 +236,104 @@
         .research-content {
             padding: 2rem 0;
         }
+
+        /* ── Research sections ───────────────────────────────────── */
+        #research .research-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .research-section {
+            padding: 2rem;
+        }
+
+        .section-inner {
+            display: grid;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .section-inner.image-left {
+            grid-template-columns: 1fr 1.6fr;
+        }
+
+        .section-inner.image-right {
+            grid-template-columns: 1.6fr 1fr;
+            direction: rtl; /* flip column order */
+        }
+
+        .section-inner.image-right > * {
+            direction: ltr; /* restore text direction inside */
+        }
+
+        .section-figure {
+            margin: 0;
+        }
+
+        .section-figure img {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .section-figure figcaption {
+            margin-top: 0.6rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .fig-caption {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .fig-credits {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            font-style: italic;
+        }
+
+        .section-text h2 {
+            color: #64b5f6;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .section-text p {
+            opacity: 0.85;
+            line-height: 1.7;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-text--full {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .section-inner.image-left,
+            .section-inner.image-right {
+                grid-template-columns: 1fr;
+                direction: ltr;
+            }
+
+            /* On mobile image always comes first (top) regardless of desktop side */
+            .section-inner.image-left {
+                /* default order — figure already first */
+            }
+
+            .section-inner.image-right .section-figure {
+                order: -1;
+            }
+        }
         
         .featured-articles {
             display: grid;
@@ -657,6 +755,7 @@
           }
           applyConfig();
           renderAbout();
+          renderResearch();
         }
 
         function applyConfig() {
@@ -684,6 +783,63 @@
           textContainer.innerHTML = about.paragraphs
             .map(p => `<p>${p}</p>`)
             .join('');
+        }
+
+        function renderResearch() {
+            const sections = SITE_CONTENT.research;
+            const container = document.getElementById('research');
+            if (!container) return;
+
+            // Remove placeholder
+            container.innerHTML = '';
+
+            if (!sections || sections.length === 0) {
+                container.innerHTML = `
+                    <div class="content-card ${SITE_CONFIG.glassEffect || 'glass-css'}" style="padding:2.5rem;text-align:center;">
+                        <h2 style="color:#64b5f6;margin-bottom:1rem;">Research</h2>
+                        <p style="opacity:0.7;">Research sections coming soon.</p>
+                    </div>`;
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'research-sections';
+
+            sections.forEach((section, index) => {
+                const card = document.createElement('div');
+                card.className = `research-section content-card ${SITE_CONFIG.glassEffect || 'glass-css'}`;
+
+                const hasImage = section.image && section.image.trim() !== '';
+                const isOdd = index % 2 === 0; // 0-indexed: 0,2,4 = "odd" visually = image-left
+
+                if (hasImage) {
+                    const sideClass = isOdd ? 'image-left' : 'image-right';
+                    card.innerHTML = `
+                        <div class="section-inner ${sideClass}">
+                            <figure class="section-figure">
+                                <img src="img/${section.image}" alt="${section.imageAlt || ''}" loading="lazy">
+                                <figcaption>
+                                    ${section.imageCaption ? `<span class="fig-caption">${section.imageCaption}</span>` : ''}
+                                    ${section.imageCredits ? `<span class="fig-credits">${section.imageCredits}</span>` : ''}
+                                </figcaption>
+                            </figure>
+                            <div class="section-text">
+                                <h2>${section.title}</h2>
+                                ${(section.body || []).map(p => `<p>${p}</p>`).join('')}
+                            </div>
+                        </div>`;
+                } else {
+                    card.innerHTML = `
+                        <div class="section-text section-text--full">
+                            <h2>${section.title}</h2>
+                            ${(section.body || []).map(p => `<p>${p}</p>`).join('')}
+                        </div>`;
+                }
+
+                wrapper.appendChild(card);
+            });
+
+            container.appendChild(wrapper);
         }
 
         // Kick off the loader as soon as the DOM is ready

@@ -626,6 +626,73 @@
     </main>
     
     <script>
+        // ── Site config & content loader ─────────────────────────────
+        const DEFAULTS = {
+          config: {
+            theme: 'theme-dark',
+            glassEffect: 'glass-css',
+            cardOpacity: 0.12,
+            showPublicationStats: false,
+            publicationsPerPage: 12
+          },
+          content: {
+            about: { paragraphs: [], image: null },
+            research: []
+          }
+        };
+
+        let SITE_CONFIG = { ...DEFAULTS.config };
+        let SITE_CONTENT = { ...DEFAULTS.content };
+
+        async function loadSiteData() {
+          try {
+            const [cfgRes, cntRes] = await Promise.all([
+              fetch('config.json'),
+              fetch('content.json')
+            ]);
+            if (cfgRes.ok) SITE_CONFIG = { ...DEFAULTS.config, ...await cfgRes.json() };
+            if (cntRes.ok) SITE_CONTENT = { ...DEFAULTS.content, ...await cntRes.json() };
+          } catch (e) {
+            // file:// or network error — silently use defaults
+          }
+          applyConfig();
+          renderAbout();
+        }
+
+        function applyConfig() {
+          // Theme
+          document.body.classList.remove('theme-dark', 'theme-space');
+          document.body.classList.add(SITE_CONFIG.theme || 'theme-dark');
+
+          // Glass effect — update all content-cards
+          document.querySelectorAll('.content-card').forEach(card => {
+            card.classList.remove('glass-css', 'glass-svg');
+            card.classList.add(SITE_CONFIG.glassEffect || 'glass-css');
+          });
+
+          // Card opacity
+          document.documentElement.style.setProperty('--card-opacity', SITE_CONFIG.cardOpacity ?? 0.12);
+        }
+
+        function renderAbout() {
+          const about = SITE_CONTENT.about;
+          if (!about || !about.paragraphs || about.paragraphs.length === 0) return;
+
+          const textContainer = document.querySelector('.about-text');
+          if (!textContainer) return;
+
+          textContainer.innerHTML = about.paragraphs
+            .map(p => `<p>${p}</p>`)
+            .join('');
+        }
+
+        // Kick off the loader as soon as the DOM is ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', loadSiteData);
+        } else {
+          loadSiteData();
+        }
+
         // ── N-body gravity simulation background ─────────────────────────────
         (function () {
             const canvas = document.getElementById('nbody-bg');

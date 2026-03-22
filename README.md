@@ -13,5 +13,21 @@ Professional website showcasing research in astrophysics, with focus on compact 
 - **GitHub**: [NCastro-Segura](https://github.com/NCastro-Segura)
 - **ADS**: [View Publications](https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0002-5870-0443)
 
+## Local Development
+
+Because `index.html` loads `config.json` and `content.json` via `fetch()`, you need a local HTTP server (not `file://` protocol):
+
+```bash
+# Option A — Node
+npx serve .
+
+# Option B — Python
+python -m http.server 8000
+```
+
+Then open http://localhost:3000 (serve) or http://localhost:8000 (python).
+
+The site will fall back to built-in defaults if the JSON files can't be fetched, so it still works without a server — config and content changes just won't apply.
+
 ## Deployment
 Hosted on GitHub Pages at: `https://YOUR-USERNAME.github.io`

@@ -1,0 +1,7 @@
+{
+  "theme": "theme-dark",
+  "glassEffect": "glass-css",
+  "cardOpacity": 0.12,
+  "showPublicationStats": false,
+  "publicationsPerPage": 12
+}

@@ -1,61 +1,35 @@
 {
   "about": {
     "paragraphs": [
-      "I'm Noel, an astronomer based at the University of Warwick. I study some of the most extreme objects in the Universe: neutron stars, black holes, and white dwarfs that are actively stealing material from a companion star. My main interest is in understanding the powerful winds and jets that these systems launch — streams of material flung back into space at millions of kilometres per hour that can shape the fate of the entire binary system.",
-      "To catch these fast-changing events, I coordinate observations using many of the world's most powerful telescopes simultaneously — from the Hubble Space Telescope and the James Webb Space Telescope in orbit, to X-ray satellites and giant ground-based observatories in Chile and the Canary Islands. I have been awarded over 190 hours of observing time on these facilities as lead scientist, working with an international network of collaborators across four continents.",
-      "My work has led to publications in Nature and other leading journals, including six papers where I am the lead author. I am originally from Spain and completed my PhD at the University of Southampton before moving to Warwick. When I'm not observing, I help develop the instruments and software tools that future astronomers will rely on.",
-      "I actively mentor PhD and masters students, sit on telescope time allocation panels for international observatories, and contribute to open-source software projects that make astronomical data analysis more accessible and reproducible."
+      "I am an astrophysicist specializing in compact objects and time domain astronomy at the University of Warwick. My research focuses on understanding the fundamental processes of accretion and outflows in neutron stars and black holes.",
+      "My work combines multi-wavelength observational astronomy with theoretical modeling to explore some of the most extreme environments in the universe. I am particularly interested in how matter behaves under the extreme gravitational fields of compact objects.",
+      "Current research interests include X-ray binary systems, accretion disc winds, neutron star binaries, and the development of high-speed optical instrumentation for time-resolved astronomy. I am actively involved in the development of OPTICAM, a triple-camera optical system designed to explore the fastest timescales in astronomy.",
+      "I contribute to international collaborations and use data from space-based missions as well as ground-based telescopes to study the rapid variability and outflow phenomena in accreting compact objects."
     ],
     "image": null
   },
   "research": [
     {
-      "title": "Stellar Winds from Dying Stars",
+      "title": "Accretion Disc Winds in X-ray Binaries",
       "body": [
-        "When a neutron star or black hole siphons gas from a nearby star, it doesn't swallow everything — a significant fraction of that material is flung back out into space in the form of powerful winds. Think of it like a drain: some water swirls down, but some splashes back up. These winds can carry away more mass than actually falls in, profoundly shaping the system's future and even enriching the surrounding interstellar medium.",
-        "In 2022 I led the first observing campaign to catch these winds simultaneously in ultraviolet, optical, X-ray, and radio light — like watching the same storm through four completely different lenses at once. The study, published in <em>Nature</em>, revealed that the winds around a neutron star named Swift J1858 were persistent and multi-layered: hot gas, warm gas, and cool gas all flowing outward together, something never seen before in such systems. <a href='https://phys.org/news/2022-03-powerful-neutron-star-rips-companion.html' target='_blank' rel='noopener'>Read the press coverage on Phys.org →</a>",
-        "I am now leading follow-up campaigns on a new set of outbursts — including the brightest black hole flare in nearly a decade — to understand what drives these winds and how they evolve over time. The long-term goal is to build a catalogue of wind measurements that theorists can use to make stellar evolution models more realistic."
+        "Accretion disc winds are outflows of material driven from the surface of accretion discs around compact objects such as neutron stars and black holes. These winds carry away angular momentum and energy, regulating the accretion process and influencing the long-term evolution of X-ray binary systems.",
+        "Using high-resolution X-ray and optical spectroscopy, we study the properties of these winds — their velocity, ionisation state, geometry, and mass-loss rates — to understand the physical mechanisms that launch them and their role in the broader context of disc physics."
       ],
       "image": "agn_wind.png",
-      "imageAlt": "Artist's impression of a disc wind from a compact binary system",
-      "imageCaption": "Artist's impression of hot gas being flung outward from the accretion disc surrounding a compact object. These powerful outflows, sometimes called disc winds, carry enormous amounts of mass and energy back into space.",
+      "imageAlt": "Illustration of an AGN wind driven from an accretion disc",
+      "imageCaption": "Artist's impression of a disc wind driven from the inner accretion disc of a compact object.",
       "imageCredits": "Credit: ESA / NASA"
     },
     {
-      "title": "White Dwarf Pulsars: Stellar Lighthouses",
+      "title": "Swift J1727.8−1613: A Black Hole X-ray Transient",
       "body": [
-        "A white dwarf is the dense, Earth-sized remnant left behind when a Sun-like star dies — a cold, fading ember. But in rare cases, a white dwarf in a binary system can spin fast enough, and carry a strong enough magnetic field, to act almost like a pulsar: sweeping beams of energy across space like a cosmic lighthouse. Only a handful of these 'white dwarf pulsars' are known to exist, and we are only just beginning to understand what makes them tick.",
-        "The first was discovered in 2016 — a bizarre system called AR Scorpii, which emits powerful radio and optical pulses roughly every two minutes. I have since identified and characterised a third confirmed sibling of this system (SDSS J230641.47+244055.8), establishing the key observational fingerprints that astronomers can use to hunt for more. This work was published in <em>Monthly Notices of the Royal Astronomical Society</em> and highlighted by <em>Nature Astronomy</em> as a paper of special interest.",
-        "Using our high-speed camera OPTICAM, I also uncovered the hidden spin signature of a fourth candidate, demonstrating that rapid multi-colour photometry — essentially taking thousands of snapshots per minute in different colours simultaneously — is a powerful tool to expose these exotic objects even when they are disguised as something more ordinary. Together, these discoveries are sketching the outlines of a new class of compact binary star."
-      ],
-      "image": null,
-      "imageAlt": null,
-      "imageCaption": null,
-      "imageCredits": null
-    },
-    {
-      "title": "How Binary Stars Evolve Over Billions of Years",
-      "body": [
-        "Binary stars — two stars orbiting each other — make up roughly half of all stars in the sky. When one of them dies and becomes a compact object, the gravitational dance intensifies: matter flows between them, orbits shrink, and the system eventually transforms into something quite different from what it started as. Understanding this evolution is crucial for predicting how many neutron stars, black holes, and double white dwarfs exist in our galaxy — and how many will eventually merge and produce gravitational waves detectable by space-based detectors like LISA in the 2030s.",
-        "One of the key missing ingredients in current models is a reliable description of how much mass and energy are actually lost from the system through winds like the ones I study. My observations of Swift J1858.6−0814, combined with the disc wind results, are providing the first empirically grounded constraints on this 'exhaust pipe' of compact binary evolution. I'm also working to connect individual systems to broader population studies, translating one-off detailed snapshots into input that evolutionary codes can actually use.",
-        "I recently co-authored a study imaging mysterious shock waves around a white dwarf binary — structures that shouldn't exist according to any known mechanism — which may hint at hidden magnetic processes driving outflows even without significant accretion. <a href='https://phys.org/news/2026-01-persistent-dead-star-puzzles-astronomers.html' target='_blank' rel='noopener'>Read about the bow shock discovery on Phys.org →</a>"
+        "Swift J1727.8−1613 is one of the brightest X-ray transients detected in recent years, discovered during its 2023 outburst. Our multi-wavelength campaign captured the evolution of the source across optical, UV, and X-ray bands, revealing a rich phenomenology of accretion state transitions.",
+        "Time-resolved optical spectroscopy with high cadence allowed us to trace the evolution of emission line profiles, disc winds, and jet signatures throughout the outburst, providing new insights into the interplay between accretion and ejection in black hole X-ray binaries."
       ],
       "image": "SwiftJ1727_ilustration_low.jpg",
-      "imageAlt": "Artist's impression of the black hole X-ray binary Swift J1727 during outburst",
-      "imageCaption": "Artist's impression of Swift J1727.8−1613 — one of the brightest black hole outbursts of the last decade — as the black hole tears material from its companion star. Monitoring such events lets us track how accretion discs form, evolve, and eventually fade away.",
+      "imageAlt": "Illustration of the Swift J1727 black hole X-ray binary system",
+      "imageCaption": "Artist's impression of the Swift J1727.8−1613 black hole X-ray binary during outburst.",
       "imageCredits": "Credit: Instituto de Astrofísica de Canarias (IAC)"
-    },
-    {
-      "title": "Building Better Telescopes and Tools",
-      "body": [
-        "Great science requires great instruments. I co-led the design and construction of OPTICAM — a triple-channel camera capable of capturing three colours of light simultaneously at extremely high speed, mounted on the 2.1-metre telescope at the Observatorio Astronómico Nacional in Mexico. This is particularly powerful for studying phenomena that flicker and change on timescales of fractions of a second, such as the spin signals from white dwarf pulsars or the rapid variability of accreting black holes.",
-        "The £265,000 STFC/UKRI-funded project brought together teams from the UK and Mexico, and OPTICAM has now produced its first published science results — with several more papers in preparation. I serve as Instrument Scientist for the project, overseeing data pipeline development, quality control, and the scientific exploitation of the data. I am also a member of the HiPERCAM team, one of the fastest astronomical cameras in the world.",
-        "Alongside hardware, I invest in software: I am developing modernised tools for binary star modelling, building on the legacy of the late Prof. Tom Marsh, whose code has underpinned much of compact-binary science over the past three decades. The goal is to make these powerful but ageing tools accessible to a new generation of astronomers — better documented, modular, and open-source."
-      ],
-      "image": null,
-      "imageAlt": null,
-      "imageCaption": null,
-      "imageCredits": null
     }
   ]
 }

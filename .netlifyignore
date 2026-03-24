@@ -1,0 +1,19 @@
+# Draft content versions
+content_v0.json
+content_v1.json
+content_v2.json
+
+# Dev / test files
+test_ads_api_script.js
+test_ads_browser.html
+updated_fetch_code.js
+index_mod.html
+nbody.html
+setup.sh
+
+# Planning and docs
+.planning/
+logs/
+00_START_HERE.md
+ads_integration_guide.md
+deployment_checklist.md

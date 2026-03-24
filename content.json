@@ -1,35 +1,23 @@
 {
   "about": {
     "paragraphs": [
-      "I am an astrophysicist specializing in compact objects and time domain astronomy at the University of Warwick. My research focuses on understanding the fundamental processes of accretion and outflows in neutron stars and black holes.",
-      "My work combines multi-wavelength observational astronomy with theoretical modeling to explore some of the most extreme environments in the universe. I am particularly interested in how matter behaves under the extreme gravitational fields of compact objects.",
-      "Current research interests include X-ray binary systems, accretion disc winds, neutron star binaries, and the development of high-speed optical instrumentation for time-resolved astronomy. I am actively involved in the development of OPTICAM, a triple-camera optical system designed to explore the fastest timescales in astronomy.",
-      "I contribute to international collaborations and use data from space-based missions as well as ground-based telescopes to study the rapid variability and outflow phenomena in accreting compact objects."
+      "I am an astronomer based at the University of Warwick. I study some of the most extreme objects in the Universe: neutron stars, black holes, and white dwarfs that are actively stealing material from a companion star. My main interest is to understand how these extreme systems exchange mass and energy with their environment through outflows (disc winds and jets), and how this feedback governs their observable phenomenology and long-term evolution.",
+      "My work combines multi-wavelength observational astronomy with theoretical modeling to explore some of the most extreme environments in the universe. To catch these fast-changing events, I coordinate observations using many of the world's most powerful telescopes simultaneously — from the Hubble Space Telescope and the James Webb Space Telescope in orbit, to X-ray satellites and giant ground-based observatories in Chile and the Canary Islands. I have been awarded over 200 hours of observing time on these facilities as lead scientist, working with an international network of collaborators across four continents.",
+      "To catch these fast-changing events, I coordinate observations using many of the world's most powerful telescopes simultaneously — from the Hubble Space Telescope and the James Webb Space Telescope in orbit, to X-ray satellites and giant ground-based observatories in Chile and the Canary Islands. I have been awarded over 200 hours of observing time on these facilities as lead scientist, working with an international network of collaborators across four continents.",
+      "I am originally from Spain, I studied my Bachelor and Master at the University of La Laguna in the canary islands and completed my PhD at the University of Southampton before moving to Warwick. When I'm not observing, I help develop the instruments and software tools that future astronomers will rely on.",
+      "I actively mentor PhD and masters students, sit on telescope time allocation panels for international observatories, and contribute to open-source software projects that make astronomical data analysis more accessible and reproducible."
     ],
     "image": null
   },
   "research": [
     {
-      "title": "Accretion Disc Winds in X-ray Binaries",
+      "title": "Research sections coming soon...",
       "body": [
-        "Accretion disc winds are outflows of material driven from the surface of accretion discs around compact objects such as neutron stars and black holes. These winds carry away angular momentum and energy, regulating the accretion process and influencing the long-term evolution of X-ray binary systems.",
-        "Using high-resolution X-ray and optical spectroscopy, we study the properties of these winds — their velocity, ionisation state, geometry, and mass-loss rates — to understand the physical mechanisms that launch them and their role in the broader context of disc physics."
-      ],
-      "image": "agn_wind.png",
-      "imageAlt": "Illustration of an AGN wind driven from an accretion disc",
-      "imageCaption": "Artist's impression of a disc wind driven from the inner accretion disc of a compact object.",
-      "imageCredits": "Credit: ESA / NASA"
-    },
-    {
-      "title": "Swift J1727.8−1613: A Black Hole X-ray Transient",
-      "body": [
-        "Swift J1727.8−1613 is one of the brightest X-ray transients detected in recent years, discovered during its 2023 outburst. Our multi-wavelength campaign captured the evolution of the source across optical, UV, and X-ray bands, revealing a rich phenomenology of accretion state transitions.",
-        "Time-resolved optical spectroscopy with high cadence allowed us to trace the evolution of emission line profiles, disc winds, and jet signatures throughout the outburst, providing new insights into the interplay between accretion and ejection in black hole X-ray binaries."
-      ],
-      "image": "SwiftJ1727_ilustration_low.jpg",
-      "imageAlt": "Illustration of the Swift J1727 black hole X-ray binary system",
-      "imageCaption": "Artist's impression of the Swift J1727.8−1613 black hole X-ray binary during outburst.",
-      "imageCredits": "Credit: Instituto de Astrofísica de Canarias (IAC)"
+        ],
+      "image": null,
+      "imageAlt": null,
+      "imageCaption": null,
+      "imageCredits": null
     }
   ]
 }

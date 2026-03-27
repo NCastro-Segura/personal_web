@@ -1,7 +1,7 @@
 {
   "theme": "theme-space",
   "glassEffect": "glass-svg",
-  "cardOpacity": 0.01,
-  "showPublicationStats": true,
+  "cardOpacity": 0.10,
+  "showPublicationStats": false,
   "publicationsPerPage": 12
 }
